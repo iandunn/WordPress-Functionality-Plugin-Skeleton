@@ -27,7 +27,35 @@ The skeleton for a WordPress functionality plugin. Contains a few common functio
 
 ## TODO
 
+* Disable PHPass compatability mode and increases passes
+	* http://core.trac.wordpress.org/ticket/21022 
+	* If patch is applied, set constant
+	* Until then, call $wp_hasher = new PasswordHash( 10, false ); before WP does
+		* 10 instead of 8, false to let PHPass use Blowfish or DES
+* Configuration management
+	* cron job runs once an hour, make sure all core/plugin/theme settings are what they should be
+	* same reasons as lamp stack config mangement 
+	* great for documentation and deployment
+	* handle single options and serialized/array
+	* core
+		* search engine off for dev, on for prod
+		* comments off
+		* look for more defaults
+	* this should maybe/probably be it's own plugin
+* Add filter to make default pagination value 100 instead of 20
+	* http://wordpress.org/extend/ideas/topic/increase-default-pagination-value?replies=1#post-23781
+	* wplisttable class getpageitems method has $option filter, but not $default
+		* custom on $default doesn't work anyway. need to dig deeper. maybe defaults set in db on install?
+* Move plugin update block message to external view
+* Turn off admin bar for front-end
+	* or at least for my user account
+* Check if plugin update blocker stops wp-cli from updating. If not, add warning.
+	* i think it does, but double check
 * Bring in best practices, coding standards, etc from plugin skeleton, but keep this lightweight
+* Add IDDescribeVar?
+	* add wrapper function so don't have to $describe->describe();
+		* describe(), or maybe just desc(), iddesc(), etc
+	* remove github repo
 
 
 ## License

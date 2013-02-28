@@ -13,8 +13,8 @@ Author URI: http://iandunn.name
  */
 
  
-if( $_SERVER['SCRIPT_FILENAME'] == __FILE__ )
-	die("Access denied.");
+if( $_SERVER[ 'SCRIPT_FILENAME' ] == __FILE__ )
+	die( 'Access denied.' );
 
 if( !class_exists( 'WordPressFunctionalityPluginSkeleton' ) )
 {

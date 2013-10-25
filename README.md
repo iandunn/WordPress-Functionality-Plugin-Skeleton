@@ -32,6 +32,7 @@ The skeleton for a WordPress functionality plugin. Contains a few common functio
 	* If patch is applied, set constant
 	* Until then, call $wp_hasher = new PasswordHash( 10, false ); before WP does
 		* 10 instead of 8, false to let PHPass use Blowfish or DES
+		* Does increasing # of passes break existing passwords, or does it gracefully upgrade?
 * Configuration management
 	* cron job runs once an hour, make sure all core/plugin/theme settings are what they should be
 	* same reasons as lamp stack config mangement 
@@ -46,6 +47,7 @@ The skeleton for a WordPress functionality plugin. Contains a few common functio
 	* http://wordpress.org/extend/ideas/topic/increase-default-pagination-value?replies=1#post-23781
 	* wplisttable class getpageitems method has $option filter, but not $default
 		* custom on $default doesn't work anyway. need to dig deeper. maybe defaults set in db on install?
+		* create core ticket if needed
 * Move plugin update block message to external view
 * Turn off admin bar for front-end
 	* or at least for my user account

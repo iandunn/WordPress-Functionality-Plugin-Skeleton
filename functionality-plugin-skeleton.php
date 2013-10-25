@@ -12,7 +12,6 @@ Author URI: http://iandunn.name
  * See https://github.com/iandunn/WordPress-Functionality-Plugin-Skeleton for details.
  */
 
- 
 if( $_SERVER[ 'SCRIPT_FILENAME' ] == __FILE__ )
 	die( 'Access denied.' );
 
@@ -83,7 +82,7 @@ if( !class_exists( 'WordPressFunctionalityPluginSkeleton' ) )
 			if( 0 !== strpos( $url, self::PLUGIN_UPDATE_CHECK_URL ) )
 				return $request;
 			
-			$plugins = unserialize( $request[ 'body' ][ 'plugins' ] );
+			$plugins = unserialize( $request[ 'body' ][ 'plugins' ] );	// todo use json now -- http://make.wordpress.org/core/2013/10/25/json-encoding-ssl-api-wordpress-3-7/
 			foreach( self::$customizedPlugins as $cp )
 			{
 				unset( $plugins->plugins[ $cp ] );
@@ -101,6 +100,8 @@ if( !class_exists( 'WordPressFunctionalityPluginSkeleton' ) )
 		 */
 		public function redirectStagingMail( $args )
 		{
+			// @todo update w/ new approach from wordcamp.org sandbox so doesn't mess up message formatting
+
 			if( $_SERVER[ 'SERVER_NAME' ] != self::PRODUCTION_SERVER_NAME )
 			{
 				$args[ 'message' ]	= "This message was intercepted and redirected to you to prevent users getting e-mails from staging/development servers.\n\n". print_r( $args, true );

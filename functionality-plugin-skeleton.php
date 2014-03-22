@@ -12,8 +12,9 @@ Author URI:  http://iandunn.name
  * See https://github.com/iandunn/WordPress-Functionality-Plugin-Skeleton for details.
  */
 
-if ( $_SERVER['SCRIPT_FILENAME'] == __FILE__ )
+if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Access denied.' );
+}
 
 if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 	class WordPress_Functionality_Plugin_Skeleton {

@@ -34,7 +34,7 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 			add_action( 'wp_footer',         array( $this, 'content_sensor_flag' ), 11 );
 			add_action( 'login_footer',      array( $this, 'content_sensor_flag' ), 11 );
 
-			add_filter( 'wp_mail',           array( $this, 'redirect_staging_mail' ) );
+			add_filter( 'wp_mail',           array( $this, 'intercept_outbound_mail' ), 99 );
 			add_filter( 'http_request_args', array( $this, 'block_plugin_updates' ), 5, 2 );
 			add_filter( 'xmlrpc_enabled', '  __return_false' );   // Disable for security -- http://core.trac.wordpress.org/ticket/21509#comment:5
 
@@ -92,14 +92,21 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 		 *
 		 * @param array $args
 		 */
-		public function redirect_staging_mail( $args ) {
-			// @todo update w/ new approach from wordcamp.org sandbox so doesn't mess up message formatting
+		// Prevent sandbox e-mails from going to production email accounts
+		function intercept_outbound_mail( $args ) {
+			if ( self::PRODUCTION_SERVER_NAME != $_SERVER[ 'SERVER_NAME' ] ) {
+				$original_message = $args[ 'message' ];
+				unset( $args['message'] );
 
-			if ( $_SERVER['SERVER_NAME'] != self::PRODUCTION_SERVER_NAME ) {
-				$args['message'] = "This message was intercepted and redirected to you to prevent users getting e-mails from staging/development servers.\n\n" . print_r( $args, true );
-				$args['to']      = get_bloginfo( 'admin_email' );
-				$args['subject'] = '[intercepted] ' . $args['subject'];
-				$args['headers'] = ''; // wipe out CC and BCC
+				$args[ 'message' ] = sprintf(
+					"This message was intercepted and redirected to you to prevent users getting e-mails from staging/development servers.\n\nwp_mail() arguments:\n\n%s\n\nOriginal message:\n-----------------------\n\n%s",
+					print_r( $args, true ),
+					$original_message
+				);
+
+				$args[ 'to' ]      = get_bloginfo( 'admin_email' );
+				$args[ 'subject' ] = '[Intercepted] ' . $args[ 'subject' ];
+				$args[ 'headers' ] = '';	// wipe out CC and BCC
 			}
 
 			return $args;

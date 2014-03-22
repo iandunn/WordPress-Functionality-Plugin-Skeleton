@@ -22,7 +22,7 @@ The skeleton for a WordPress functionality plugin. Contains a few common functio
 * Find/replace name
 * git mv filenames to match new name
 * Update the values of the $customizedPlugins array
-* Update the value of the PRODUCTION_SERVER_NAME constant to match your production server name (e.g., "www.example.com")
+* Update the value of the PRODUCTION_SERVER_NAME constant to match your production server name (e.g., "www.example.org")
 
 
 ## TODO

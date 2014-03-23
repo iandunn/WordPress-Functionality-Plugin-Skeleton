@@ -21,6 +21,7 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 		protected static $customized_plugins = array(
 			'plugin-directory/plugin-filename.php'
 		);
+		protected $previous_error_handler;
 
 		const PREFIX                  = 'wpfps_';
 		const PRODUCTION_SERVER_NAME  = 'www.example.org';
@@ -41,6 +42,8 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 			foreach ( self::$customized_plugins as $filename ) {
 				add_action( 'after_plugin_row_' . $filename, array( $this, 'custom_upgrade_warning' ), 10, 2 );
 			}
+
+			$this->previous_error_handler = set_error_handler( array( $this, 'ignore_third_party_warnings' ) );
 		}
 
 		/**
@@ -121,6 +124,99 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 		 */
 		public function content_sensor_flag() {
 			echo '<!-- Monitor-WP-OK -->';
+		}
+
+		/*
+		 * Ignore warnings/notices from poorly written third-party plugins/themes.
+		 *
+		 * If you can't fix 'em, might as well ignore 'em. This way you can still run
+		 * `error_reporting` at `E_ALL` to make sure your own work is done right.
+		 *
+		 * Note that this method won't catch errors that occur before it was registered as the error
+		 * handler. Most errors will happen after `plugins_loaded`, but if necessary you can
+		 * convert this to an mu-plugin named `_ignore_third_party_warnings.php` so that it runs first.
+		 *
+		 * Also note that the slug matching is fairly loose in order to avoid dealing with
+		 * subdirectories and other theme/plugin path variations, which may cause problems in edge
+		 * cases.
+		 *
+		 * And one final note, when an error comes in that is outside of `error_reporting`, technically
+		 * we should try calling the previous error handler if one was registered, on the outside chance
+		 * that it wants to handle the error, but that's an edge case that would bloat the method. So, I
+		 * chose to bloat the documentation instead :)
+		 *
+		 * @param int    $level   See set_error_handler() for parameter descriptions
+		 * @param string $message
+		 * @param string $file
+		 * @param int    $line
+		 * @param array  $context
+		 */
+		public function ignore_third_party_warnings( $level, $message, $file, $line, $context = array() ) {
+			$bad_module_slugs = apply_filters( 'wpfps_bad_module_slugs', array() );
+
+			// The error isn't one that error_reporting is set to handle.
+			if ( ! ( error_reporting() & $level ) ) {
+				return;
+			}
+
+			$module_file = str_replace(
+				array_merge( array( WP_PLUGIN_DIR, WPMU_PLUGIN_DIR ), $GLOBALS['wp_theme_directories'] ),
+				'',
+				$file
+			);
+
+			// If the warning was triggered by a registered third-party plugin, ignore it and return
+			foreach ( $bad_module_slugs as $slug ) {
+				if ( false !== strpos( $module_file, $slug ) ) {
+					return;
+				}
+			}
+
+			/*
+			 * The error wasn't from a registered third-party plugin, so handle it.
+			 * If a custom handler was previously used, then call that. Otherwise mimic the default handler.
+			 */
+			if ( isset( $this->previous_error_handler ) && is_callable( $this->previous_error_handler ) ) {
+				call_user_func( $this->previous_error_handler, $level, $message, $file, $line, $context );
+			} else {
+				$this->faux_php_default_error_handler( $level, $message, $file, $line, $context );
+			}
+		}
+
+		/**
+		 * Mimic PHP's default error handler
+		 *
+		 * It doesn't seem possible to call the default PHP error handler, so we have to mimic it,
+		 * and also Xdebug's handler. Unfortunately this means that the Xdebug error description
+		 * and stack traces will both includes references to this method.
+		 *
+		 * @param int    $level   See set_error_handler() for parameter descriptions
+		 * @param string $message
+		 * @param string $file
+		 * @param int    $line
+		 * @param array  $context
+		 */
+		protected function faux_php_default_error_handler( $level, $message, $file, $line, $context ) {
+			$error_message = sprintf(
+				'%s in %s on line %s',
+				$message, $file, $line
+			);
+
+			if ( ini_get( 'display_errors' ) ) {
+				if ( function_exists( 'xdebug_is_enabled' ) && xdebug_is_enabled() ) {
+					xdebug_print_function_stack( sanitize_text_field( $error_message ) );
+				} else {
+					if ( ini_get( 'html_errors' ) ) {
+						echo '<p>'. esc_html( $error_message ) .'</p>';
+					} else {
+						echo sanitize_text_field( $error_message );
+					}
+				}
+			}
+
+			if ( ini_get( 'log_errors' ) ) {
+				error_log( sanitize_text_field( $error_message ) );
+			}
 		}
 
 	} // end WordPress_Functionality_Plugin_Skeleton

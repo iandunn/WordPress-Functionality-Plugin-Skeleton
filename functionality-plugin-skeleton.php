@@ -95,7 +95,6 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 		 *
 		 * @param array $args
 		 */
-		// Prevent sandbox e-mails from going to production email accounts
 		function intercept_outbound_mail( $args ) {
 			if ( self::PRODUCTION_SERVER_NAME != $_SERVER[ 'SERVER_NAME' ] ) {
 				$original_message = $args[ 'message' ];

@@ -6,9 +6,9 @@ The skeleton for a WordPress functionality plugin. Contains a few common functio
 ## Features
 
 * Redirects outbound e-mail from staging/development servers to the site administrator, so that users don't see tests or other unwanted messages.
-* Adds a flag in the footer output for an external monitoring service to check with a content sensor.
-* Ignores PHP warnings/notices from specified third-party plugins/themes, so you can still run `error_reporting` at `E_ALL` even when you have to use a poorly written plugin or theme.
 * Blocks customized plugins from being accidentally upgraded (which would overwrite the customizations).
+* Adds a flag in the footer output for an external monitoring service to check with a content sensor.
+
 
 ## Installation
 

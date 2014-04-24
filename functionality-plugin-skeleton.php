@@ -34,6 +34,7 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 			add_action( 'wp_footer',         array( $this, 'content_sensor_flag' ), 11 );
 			add_action( 'login_footer',      array( $this, 'content_sensor_flag' ), 11 );
 
+			add_filter( 'wp_headers',        array( $this, 'prevent_clickjacking' ), 10, 2 );
 			add_filter( 'wp_mail',           array( $this, 'intercept_outbound_mail' ), 99 );
 			add_filter( 'http_request_args', array( $this, 'block_plugin_updates' ), 5, 2 );
 			add_filter( 'xmlrpc_enabled', '  __return_false' );   // Disable for security -- http://core.trac.wordpress.org/ticket/21509#comment:5
@@ -41,6 +42,22 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 			foreach ( self::$customized_plugins as $filename ) {
 				add_action( 'after_plugin_row_' . $filename, array( $this, 'custom_upgrade_warning' ), 10, 2 );
 			}
+		}
+
+		/**
+		 * Prevents clickjacking by sending the X-Frame-Options header
+		 *
+		 * WordPress automatically does this for the Administration Panels (see #12293), but avoids
+		 * doing it on the front end because it can interfere with some plugins.
+		 *
+		 * @param array $headers
+		 * @param object $wp
+		 * @return array
+		 */
+		public function prevent_clickjacking( $headers, $wp ) {
+			$headers['X-Frame-Options'] = 'SAMEORIGIN';
+
+			return $headers;
 		}
 
 		/**

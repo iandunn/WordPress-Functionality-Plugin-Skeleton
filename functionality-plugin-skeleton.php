@@ -48,14 +48,20 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 		 * Prevents clickjacking by sending the X-Frame-Options header
 		 *
 		 * WordPress automatically does this for the Administration Panels (see #12293), but avoids
-		 * doing it on the front end because it can interfere with some plugins.
+		 * doing it on the front end because it can interfere with some legitimate remote services.
+		 *
+		 * @todo Add support for ALLOW-FROM when it's safe to use (when modern browsers fully support it).
 		 *
 		 * @param array $headers
 		 * @param object $wp
 		 * @return array
 		 */
 		public function prevent_clickjacking( $headers, $wp ) {
-			$headers['X-Frame-Options'] = 'SAMEORIGIN';
+			$excluded_page_slugs = array();
+
+			if ( empty( $wp->query_vars['pagename'] ) || ! in_array( $wp->query_vars['pagename'], $excluded_page_slugs ) ) {
+				$headers['X-Frame-Options'] = 'SAMEORIGIN';
+			}
 
 			return $headers;
 		}

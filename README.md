@@ -8,6 +8,7 @@ The skeleton for a WordPress functionality plugin. Contains a few common functio
 * Redirects outbound e-mail from staging/development servers to the site administrator, so that users don't see tests or other unwanted messages.
 * Blocks customized plugins from being accidentally upgraded (which would overwrite the customizations).
 * Adds a flag in the footer output for an external monitoring service to check with a content sensor.
+* Prevent clickjacking for all front-end pages, with the option to exclude specific pages that should be framed.
 
 
 ## Installation

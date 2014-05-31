@@ -50,6 +50,11 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 		 * WordPress automatically does this for the Administration Panels (see #12293), but avoids
 		 * doing it on the front end because it can interfere with some legitimate remote services.
 		 *
+		 * Note that this doesn't work with certain page caching strategies, so it's better to set it as the
+		 * web server layer if possible.
+		 * @see http://wordpress.org/support/topic/plugin-wp-super-cache-bug-headers-not-being-included
+		 * @see https://httpd.apache.org/docs/2.2/mod/mod_headers.html
+		 *
 		 * @todo Add support for ALLOW-FROM when it's safe to use (when modern browsers fully support it).
 		 *
 		 * @param array $headers

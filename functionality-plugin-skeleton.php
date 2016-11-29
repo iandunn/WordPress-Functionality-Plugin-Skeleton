@@ -102,6 +102,14 @@ if ( ! class_exists( 'WordPress_Functionality_Plugin_Skeleton' ) ) {
 		 * @return array
 		 */
 		public function block_plugin_updates( $request, $url ) {
+			/*
+			 * this is probably already broken because of the HTTPS and JSON changes mentioned below, and
+			 * serialize() might introduce security issues, so disable this until it can be properly fixed
+			 *
+			 * @see https://hackerone.com/reports/185907
+			 */
+			return $request;
+
 			if ( 0 !== strpos( $url, self::PLUGIN_UPDATE_CHECK_URL ) ) // todo moving to https at some point, if hasn't already
 				return $request;
 
